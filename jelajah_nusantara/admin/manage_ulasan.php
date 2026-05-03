@@ -120,7 +120,7 @@ if (!$result) {
 <div class="main-content">
     <div class="header">
         <h2>Kelola Ulasan Pengunjung</h2>
-        <div>Selamat datang, <?= htmlspecialchars($_SESSION['username']) ?> (Admin)</div>
+        <div>WELCOME, <?= htmlspecialchars($_SESSION['username']) ?> (Admin)</div>
     </div>
 
     <div class="card">
