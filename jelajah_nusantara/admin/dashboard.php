@@ -36,7 +36,7 @@ $countData = mysqli_fetch_assoc($resultCount);
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Admin Dashboard</title>
+    <title>Admin Dashboard JELAJAH NUSANTARA</title>
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
