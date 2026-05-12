@@ -143,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="main-content">
         <div class="header">
             <h2>Tambah Wisata Baru</h2>
-            <div>Selamat datang, <?= htmlspecialchars($_SESSION['username']) ?> (Admin)</div>
+            <div>WELCOME, <?= htmlspecialchars($_SESSION['username']) ?> (Admin)</div>
         </div>
 
         <div class="card">
