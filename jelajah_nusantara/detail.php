@@ -239,7 +239,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <textarea id="komentar" name="komentar" rows="4" required><?= isset($editData) ? htmlspecialchars($editData['komentar_ulasan']) : '' ?></textarea>
                 </div>
 
-                <button type="submit"><?= isset($_GET['edit']) ? 'Update Ulasan' : 'Kirim Ulasan' ?></button>
+                <button type="submit"><?= isset($_GET['edit']) ? 'Update Ulasan' : 'Masukkan Ulasan' ?></button>
 
                 <?php if (isset($_GET['edit'])): ?>
                     <a href="detail.php?id=<?= $id ?>">Batal</a>
