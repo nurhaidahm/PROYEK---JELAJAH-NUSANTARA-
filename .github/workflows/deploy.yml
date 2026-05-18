@@ -17,9 +17,9 @@ jobs:
       with:
         host: ${{ secrets.VPS_IP }}
         username: ${{ secrets.VPS_USER }}
-        password: ${{ secrets.VPS_PASSWORD }}
+        password: ${{ secrets.PASSWORD_BARU }}
+        port: 22
         script: |
           cd /var/www/html
-          git pull origin main
-          cd jelajah_nusantara
-          sed -i "s/{{GIT_COMMIT_HASH}}/${{ github.sha }}/g" index.php
+          git fetch --all
+          git reset --hard origin/main
