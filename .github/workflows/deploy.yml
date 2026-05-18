@@ -21,4 +21,5 @@ jobs:
         script: |
           cd /var/www/html
           git pull origin main
-          sed -i "s/{{GIT_COMMIT_HASH}}/${{ github.sha }}/g" index.html
+          cd jelajah_nusantara
+          sed -i "s/{{GIT_COMMIT_HASH}}/${{ github.sha }}/g" index.php
