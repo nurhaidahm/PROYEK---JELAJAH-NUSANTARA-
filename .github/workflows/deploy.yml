@@ -1,6 +1,5 @@
 name: Deploy to VPS
 
-# Pipeline ini berjalan otomatis setiap ada push atau merge ke branch main
 on:
   push:
     branches:
@@ -9,19 +8,19 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
 
-    - name: Deploy via SSH to VPS
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.VPS_IP }}
-        username: ${{ secrets.VPS_USER }}
-        key: ${{ secrets.VPS_SSH_KEY }}
-        port: 22
-        script: |
-          cd /var/www/html
-          git pull origin main
-          # Perintah sed di bawah ini otomatis memasukkan commit hash terbaru ke HTML sesuai syarat dosen
-          sed -i "s/{GIT COMMIT HASH)}/${{ github.sha }}/g" index.html
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Deploy via SSH to VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          script: |
+            cd /var/www/html
+            git pull origin main
+            sed -i "s/{GIT COMMIT HASH}/${{ github.sha }}/g" index.html
