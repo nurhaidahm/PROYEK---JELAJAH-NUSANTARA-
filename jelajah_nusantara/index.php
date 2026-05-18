@@ -4,7 +4,7 @@ include 'db.php';
 // Ambil semua data wisata
 $query = "SELECT * FROM wisata";
 $result = mysqli_query($conn, $query);
-?>
+?>  
 
 <!DOCTYPE html>
 <html>
