@@ -17,8 +17,7 @@ jobs:
       with:
         host: ${{ secrets.VPS_IP }}
         username: ${{ secrets.VPS_USER }}
-        password: ${{ secrets.PASSWORD_BARU }}
-        port: 22
+        key: ${{ secrets.VPS_SSH_KEY }}
         script: |
           cd /var/www/html
           git fetch --all
