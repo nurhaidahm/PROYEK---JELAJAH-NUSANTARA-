@@ -17,27 +17,27 @@ jobs:
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.VPS_IP }}
-        username: ${{ secrets.VPS_USER }}
+        username: ubuntu
         password: ${{ secrets.VPS_PASSWORD }}
         port: 22
         script: |
           # 1. Masuk ke folder html-proyek
           cd /var/www/html-proyek
 
-          # 2. Jika folder proyek belum terhubung dengan git, kita amankan kodenya
+          # 2. Amankan sinkronisasi kode dari GitHub ke VPS
           if [ ! -d "jelajah_nusantara/.git" ]; then
             sudo rm -rf jelajah_nusantara
-            sudo git clone https://github.com/${{ github.repository }}.git jelajah_nusantara
+            sudo git clone https://github.com/nurhaidahm/PROYEK---JELAJAH-NUSANTARA-.git jelajah_nusantara
             cd jelajah_nusantara
           else
             cd jelajah_nusantara
             sudo git fetch --all
-            sudo git reset --hard origin/main  # Menimpa file lokal dengan kode terbaru dari GitHub
+            sudo git reset --hard origin/main
           fi
 
-          # 3. Berikan hak akses ke Nginx agar file PHP bisa dibaca dan gambar bisa diunggah
-          sudo chown -r www-data:www-data /var/www/html-proyek/jelajah_nusantara
-          sudo chmod -r 755 /var/www/html-proyek/jelajah_nusantara
+          # 3. Berikan hak akses folder agar Nginx bisa membaca file PHP
+          sudo chown -R www-data:www-data /var/www/html-proyek/jelajah_nusantara
+          sudo chmod -R 755 /var/www/html-proyek/jelajah_nusantara
 
-          # 4. Amankan dan segarkan server Nginx
+          # 4. Segarkan server Nginx untuk menerapkan perubahan terbaru
           sudo systemctl restart nginx
