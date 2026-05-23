@@ -3,7 +3,7 @@ name: Deploy Jelajah Nusantara
 on:
   push:
     branches:
-      - main  # Ganti ke 'master' jika branch utama kalian namanya master
+      - main  # Ganti 'main' ke branch utama kalian
 
 jobs:
   deploy:
@@ -18,13 +18,10 @@ jobs:
       with:
         host: ${{ secrets.VPS_IP }}
         username: ubuntu
-        password: ${{ secrets.VPS_PASSWORD }}
+        key: ${{ secrets.VPS_SSH_KEY }}
         port: 22
         script: |
-          # 1. Masuk ke folder html-proyek
           cd /var/www/html-proyek
-
-          # 2. Amankan sinkronisasi kode dari GitHub ke VPS
           if [ ! -d "jelajah_nusantara/.git" ]; then
             sudo rm -rf jelajah_nusantara
             sudo git clone https://github.com/nurhaidahm/PROYEK---JELAJAH-NUSANTARA-.git jelajah_nusantara
@@ -34,10 +31,6 @@ jobs:
             sudo git fetch --all
             sudo git reset --hard origin/main
           fi
-
-          # 3. Berikan hak akses folder agar Nginx bisa membaca file PHP
           sudo chown -R www-data:www-data /var/www/html-proyek/jelajah_nusantara
           sudo chmod -R 755 /var/www/html-proyek/jelajah_nusantara
-
-          # 4. Segarkan server Nginx untuk menerapkan perubahan terbaru
           sudo systemctl restart nginx
