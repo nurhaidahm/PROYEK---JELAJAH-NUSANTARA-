@@ -5,7 +5,10 @@ include 'db.php'; // Pastikan file ini berada di lokasi yang benar
 $keyword = isset($_GET['q']) ? mysqli_real_escape_string($conn, $_GET['q']) : '';
 
 // Ambil data wisata berdasarkan keyword pencarian
-$query = "SELECT * FROM wisata WHERE nama_wisata LIKE '%$keyword%'";
+$query = "SELECT * FROM wisata WHERE 
+          nama_wisata LIKE '%$keyword%' OR 
+          lokasi_wisata LIKE '%$keyword%' OR 
+          deskripsi_wisata LIKE '%$keyword%'";
 $result = mysqli_query($conn, $query);
 ?>
 
