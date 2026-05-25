@@ -94,7 +94,7 @@ $result = mysqli_query($conn, $query);
             border: 1px solid #b2dfdb;
             border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 4px 12 rgba(26, 188, 156, 0.15);
+            box-shadow: 0 4px 12px rgba(26, 188, 156, 0.15);
             transition: transform 0.2s ease-in-out;
         }
 
@@ -136,12 +136,6 @@ $result = mysqli_query($conn, $query);
             border-top: 1px solid #b2dfdb;
             margin: 30px 0;
         }
-
-        /* Style Animasi Kedip untuk Indikator Status */
-        @keyframes pulse {
-            0% { opacity: 0.4; }
-            100% { opacity: 1; }
-        }
     </style>
 </head>
 <body>
@@ -175,31 +169,37 @@ $result = mysqli_query($conn, $query);
     </div>
 </div>
 
-<div id="status-network" style="position: fixed; bottom: 20px; left: 20px; padding: 10px 18px; background: #1abc9c; color: white; border-radius: 30px; font-weight: bold; font-size: 14px; font-family: sans-serif; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 9999; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;">
-  <span id="status-dot" style="height: 10px; width: 10px; background-color: #ffffff; border-radius: 50%; display: inline-block; animation: pulse 1s infinite alternate;"></span>
-  <span id="status-text">Koneksi: Online</span>
+<div id="status-network" style="position: fixed; bottom: 20px; left: 20px; background: #1abc9c; color: white; padding: 10px 15px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 13px; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 99999; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;">
+  <span id="status-dot" style="width: 8px; height: 8px; background: white; border-radius: 50%; display: inline-block; animation: status-pulse 1.5s infinite ease-in-out;"></span>
+  <span id="status-text">Koneksi: Online (Hash: <?php echo htmlspecialchars(trim(shell_exec('git rev-parse --short HEAD') ?? 'N/A')); ?>)</span>
 </div>
 
+<style>
+@keyframes status-pulse {
+  0% { transform: scale(0.95); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.5; }
+}
+</style>
+
 <script>
-  function updateOnlineStatus() {
-    const statusDiv = document.getElementById('status-network');
-    const statusText = document.getElementById('status-text');
-    
-    if (navigator.onLine) {
-      statusText.innerHTML = "Koneksi: Online";
-      statusDiv.style.background = "#1abc9c"; // Hijau tosca bawaan tema kalian
-    } else {
-      statusText.innerHTML = "Koneksi: Offline";
-      statusDiv.style.background = "#e74c3c"; // Merah tanda putus koneksi
-    }
+function updateNetworkStatus() {
+  const statusContainer = document.getElementById('status-network');
+  const statusText = document.getElementById('status-text');
+  const currentHash = <?php echo json_encode(trim(shell_exec('git rev-parse --short HEAD') ?? 'N/A')); ?>;
+
+  if (navigator.onLine) {
+    statusContainer.style.background = '#1abc9c';
+    statusText.innerText = 'Koneksi: Online (Hash: ' + currentHash + ')';
+  } else {
+    statusContainer.style.background = '#e74c3c';
+    statusText.innerText = 'Koneksi: Offline';
   }
+}
 
-  // Mengintai perubahan status jaringan secara real-time
-  window.addEventListener('online', updateOnlineStatus);
-  window.addEventListener('offline', updateOnlineStatus);
-
-  // Jalankan fungsi sekali saat halaman selesai dimuat
-  document.addEventListener("DOMContentLoaded", updateOnlineStatus);
+window.addEventListener('online', updateNetworkStatus);
+window.addEventListener('offline', updateNetworkStatus);
 </script>
+
 </body>
 </html>
