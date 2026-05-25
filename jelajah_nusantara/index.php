@@ -1,7 +1,11 @@
 <?php
 include 'db.php';
 
-// Ambil semua data wisata
+// PERINTAH SAKTI: Mengalihkan domain utama langsung ke halaman login/register
+header("Location: loginregister.php");
+exit;
+
+// Kode lama di bawah ini biarkan saja, tidak usah dihapus
 $query = "SELECT * FROM wisata";
 $result = mysqli_query($conn, $query);
 ?>
