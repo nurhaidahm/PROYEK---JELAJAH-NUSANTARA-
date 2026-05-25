@@ -1,11 +1,20 @@
 <?php
 include 'db.php';
 
-// PERINTAH SAKTI: Mengalihkan domain utama langsung ke halaman login/register
-header("Location: loginregister.php");
-exit;
+// Pastikan sistem pencatatan session di server sudah aktif
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-// Kode lama di bawah ini biarkan saja, tidak usah dihapus
+// PENGECEKAN KEBAL:
+// Jika tidak ada data akun sama sekali di session (berarti pengunjung baru/belum login)
+if (empty($_SESSION)) {
+    // Pindahkan langsung ke halaman login/register utama
+    header("Location: loginregister.php");
+    exit;
+}
+
+// JIKA SUDAH LOGIN: Jalankan query data wisata seperti biasa
 $query = "SELECT * FROM wisata";
 $result = mysqli_query($conn, $query);
 ?>

@@ -10,7 +10,7 @@ if (!$conn) {
     die("Koneksi gagal: " . mysqli_connect_error());
 }
 
-// OTOMATISASI DATABASE: Mengecek & membuat kolom role_users jika belum ada di server VPS
+// OTOMATISASI DATABASE: Mengecek & membuat kolom role_users jika belum ada di database VPS
 $check_column = mysqli_query($conn, "SHOW COLUMNS FROM `users` LIKE 'role_users'");
 if (mysqli_num_rows($check_column) == 0) {
     mysqli_query($conn, "ALTER TABLE users ADD COLUMN role_users ENUM('admin','user') DEFAULT 'user'");
