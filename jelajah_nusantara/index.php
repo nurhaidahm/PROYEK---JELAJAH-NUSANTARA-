@@ -171,7 +171,11 @@ $result = mysqli_query($conn, $query);
 
 <div id="status-network" style="position: fixed; bottom: 20px; left: 20px; background: #1abc9c; color: white; padding: 10px 15px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 13px; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 99999; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;">
   <span id="status-dot" style="width: 8px; height: 8px; background: white; border-radius: 50%; display: inline-block; animation: status-pulse 1.5s infinite ease-in-out;"></span>
-  <span id="status-text">Koneksi: Online (Hash: <?php echo htmlspecialchars(trim(shell_exec('git rev-parse --short HEAD') ?? 'N/A')); ?>)</span>
+  <span id="status-text">Koneksi: Online</span>
+</div>
+
+<div style="text-align: center; margin: 20px 0; font-family: 'Segoe UI', sans-serif; font-size: 12px; color: #7f8c8d;">
+  <p>Versi Aplikasi (Git Hash): <strong><?php echo htmlspecialchars(trim(shell_exec('git rev-parse --short HEAD') ?? 'N/A')); ?></strong></p>
 </div>
 
 <style>
@@ -186,11 +190,10 @@ $result = mysqli_query($conn, $query);
 function updateNetworkStatus() {
   const statusContainer = document.getElementById('status-network');
   const statusText = document.getElementById('status-text');
-  const currentHash = <?php echo json_encode(trim(shell_exec('git rev-parse --short HEAD') ?? 'N/A')); ?>;
 
   if (navigator.onLine) {
     statusContainer.style.background = '#1abc9c';
-    statusText.innerText = 'Koneksi: Online (Hash: ' + currentHash + ')';
+    statusText.innerText = 'Koneksi: Online';
   } else {
     statusContainer.style.background = '#e74c3c';
     statusText.innerText = 'Koneksi: Offline';
