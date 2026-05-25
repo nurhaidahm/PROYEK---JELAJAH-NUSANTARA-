@@ -32,9 +32,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (empty($errors)) {
             $password_hash = password_hash($password, PASSWORD_DEFAULT);
-            $insert = mysqli_query($conn, "INSERT INTO users (username, password, role) VALUES ('$username', '$password_hash', 'user')");
+            // FIX: Menggunakan kolom 'role_users' agar pas dengan otomatisasi db.php kalian
+            $insert = mysqli_query($conn, "INSERT INTO users (username, password, role_users) VALUES ('$username', '$password_hash', 'user')");
             if ($insert) {
-                $success = "Registrasi berhasil! Silakan login.";
+                // FIX: Langsung dialihkan menggunakan JS Alert agar halaman tidak stuck menggantung!
+                echo "<script>
+                        alert('Registrasi berhasil! Silakan masuk menggunakan akun baru Anda.');
+                        window.location.href='loginregister.php';
+                      </script>";
+                exit();
             } else {
                 $errors[] = "Gagal registrasi.";
             }
@@ -54,10 +60,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $user = mysqli_fetch_assoc($query);
                 if (password_verify($password, $user['password'])) {
                     $_SESSION['username'] = $user['username'];
-                    $_SESSION['role'] = $user['role'];
+                    $_SESSION['role'] = $user['role_users']; // FIX: Menyesuaikan dengan role_users
                     $_SESSION['id'] = $user['id'];
 
-                    header("Location: " . ($user['role'] === 'admin,' ? "admin/dashboard.php" : "index.php"));
+                    // FIX: Menghilangkan typo koma pada kata 'admin'
+                    header("Location: " . ($user['role_users'] === 'admin' ? "admin/dashboard.php" : "index.php"));
                     exit();
                 } else {
                     $errors[] = "Password salah.";
@@ -80,132 +87,131 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
     body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(rgba(40, 58, 54, 0.04), rgba(21, 156, 140, 0.32)),
-        url('https://i.pinimg.com/736x/0c/75/f1/0c75f1fa68710fdabd119ea4e306c61a.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-}
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(rgba(40, 58, 54, 0.04), rgba(21, 156, 140, 0.32)),
+            url('https://i.pinimg.com/736x/0c/75/f1/0c75f1fa68710fdabd119ea4e306c61a.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
 
-.container {
-    background: white;
-    padding: 30px 40px;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(26, 188, 156, 0.3);
-    width: 360px;
-    position: relative;
-}
+    .container {
+        background: white;
+        padding: 30px 40px;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(26, 188, 156, 0.3);
+        width: 360px;
+        position: relative;
+    }
 
-h2 {
-    text-align: center;
-    color: #159c8c;
-    margin-bottom: 20px;
-}
+    h2 {
+        text-align: center;
+        color: #159c8c;
+        margin-bottom: 20px;
+    }
 
-.toggle-btns {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-}
+    .toggle-btns {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
 
-.toggle-btns button {
-    width: 50%;
-    padding: 10px;
-    border: none;
-    background-color: #a0e6de;
-    color: #0e5f56;
-    font-weight: 700;
-    cursor: pointer;
-    transition: 0.3s;
-}
+    .toggle-btns button {
+        width: 50%;
+        padding: 10px;
+        border: none;
+        background-color: #a0e6de;
+        color: #0e5f56;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.3s;
+    }
 
-.toggle-btns .active {
-    background-color: #1abc9c;
-    color: white;
-}
+    .toggle-btns .active {
+        background-color: #1abc9c;
+        color: white;
+    }
 
-form {
-    display: flex;
-    flex-direction: column;
-}
+    form {
+        display: flex;
+        flex-direction: column;
+    }
 
-.input-group {
-    position: relative;
-}
+    .input-group {
+        position: relative;
+    }
 
-input[type="text"],
-input[type="password"] {
-    padding: 10px 12px;
-    margin-bottom: 15px;
-    border: 2px solid #b2dfdb;
-    border-radius: 6px;
-    font-size: 14px;
-    width: 100%;
-}
+    input[type="text"],
+    input[type="password"] {
+        padding: 10px 12px;
+        margin-bottom: 15px;
+        border: 2px solid #b2dfdb;
+        border-radius: 6px;
+        font-size: 14px;
+        width: 100%;
+    }
 
-.toggle-eye {
-    position: absolute;
-    top: 0;
-    bottom: 17px;
-    right: 0px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    color: #159c8c;
-}
+    .toggle-eye {
+        position: absolute;
+        top: 0;
+        bottom: 17px;
+        right: 0px;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        color: #159c8c;
+    }
 
-.toggle-eye i {
-    width: 20px;
-    height: 20px;
-}
+    .toggle-eye i {
+        width: 20px;
+        height: 20px;
+    }
 
-button[type="submit"] {
-    background-color: #1abc9c;
-    color: white;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 15px;
-    transition: 0.3s;
-}
+    button[type="submit"] {
+        background-color: #1abc9c;
+        color: white;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 15px;
+        transition: 0.3s;
+    }
 
-button[type="submit"]:hover {
-    background-color: #159c8c;
-}
+    button[type="submit"]:hover {
+        background-color: #159c8c;
+    }
 
-.error,
-.success {
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 6px;
-    font-size: 14px;
-}
+    .error,
+    .success {
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 6px;
+        font-size: 14px;
+    }
 
-.error {
-    background: #ffe5e5;
-    color: #a10000;
-}
+    .error {
+        background: #ffe5e5;
+        color: #a10000;
+    }
 
-.success {
-    background: #e0f7f5;
-    color: #00796b;
-}
+    .success {
+        background: #e0f7f5;
+        color: #00796b;
+    }
 
-small {
-    text-align: center;
-    display: block;
-    margin-top: 12px;
-    color: #00675b;
-}
-
+    small {
+        text-align: center;
+        display: block;
+        margin-top: 12px;
+        color: #00675b;
+    }
     </style>
 </head>
 <body>
@@ -308,7 +314,7 @@ small {
         formTitle.textContent = 'Registrasi';
     };
 
-    // hide alert after 4 seconds
+    // hide alert after 2 seconds
     const messageBox = document.getElementById('message-box');
     if (messageBox) {
         setTimeout(() => messageBox.style.display = 'none', 2000);
@@ -318,7 +324,6 @@ small {
 </body>
 </html>
 
-<!-- Header -->
 <header style="position: absolute; top: 80px; left: 0; width: 100%; text-align: center;">
     <h1 style="color:rgb(255, 255, 255); font-size: 30px; font-weight: bold; margin: 0;">
         Welcome to 🗺️ Jelajah Nusantara!
