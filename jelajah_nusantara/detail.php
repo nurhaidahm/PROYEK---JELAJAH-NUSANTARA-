@@ -14,12 +14,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $query = "INSERT INTO ulasan (id_wisata, nama_user, komentar_ulasan, rating, tanggal) 
               VALUES ($id, '$nama', '$komentar', $rating, NOW())";
     
-    if (!mysqli_query($conn, $query)) {
-        die("Gagal menyimpan ulasan: " . mysqli_error($conn)); // Ini akan muncul kalau ada kolom yang salah nama
+   if (!mysqli_query($conn, $query)) {
+    echo "Gagal menyimpan ulasan. ";
+    echo "Pesan Error MySQL: " . mysqli_error($conn) . "<br>";
+    
+    // Cek struktur kolom tabel ulasan
+    $res = mysqli_query($conn, "DESCRIBE ulasan");
+    echo "Struktur Tabel Ulasan Anda saat ini: <pre>";
+    while($row = mysqli_fetch_assoc($res)) {
+        print_r($row);
     }
+    echo "</pre>";
+    die(); 
+}
     
     header("Location: detail.php?id=$id");
     exit();
 }
 
-// ... (lanjutan kode query ulasan dan HTML tetap sama) ...
