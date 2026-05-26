@@ -1,12 +1,21 @@
 <?php
 include 'db.php';
 
+// Ambil ID dari URL parameter (?id=XX)
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
+// Query ambil data objek wisata berdasarkan ID
 $queryWisata = "SELECT * FROM wisata WHERE id_wisata = $id";
 $resultWisata = mysqli_query($conn, $queryWisata);
 $wisata = mysqli_fetch_assoc($resultWisata);
 
+// Jika data wisata tidak ditemukan di database, alihkan ke index.php
+if (!$wisata) {
+    header("Location: index.php");
+    exit();
+}
+
+// Query ambil daftar ulasan khusus untuk objek wisata ini
 $queryUlasan = "
     SELECT u.id_ulasan, u.nama_user, u.komentar_ulasan, u.rating, u.tanggal
     FROM ulasan u
@@ -14,44 +23,6 @@ $queryUlasan = "
     ORDER BY u.tanggal DESC
 ";
 $resultUlasan = mysqli_query($conn, $queryUlasan);
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['action'])) {
-        $action = $_POST['action'];
-
-        if ($action === 'tambah') {
-            $nama = mysqli_real_escape_string($conn, $_POST['nama']);
-            $rating = (int)$_POST['rating'];
-            $komentar = mysqli_real_escape_string($conn, $_POST['komentar']);
-
-            $query = "INSERT INTO ulasan (id_wisata, nama_user, komentar_ulasan, rating, tanggal) 
-                      VALUES ($id, '$nama', '$komentar', $rating, NOW())";
-            mysqli_query($conn, $query);
-
-        } elseif ($action === 'edit') {
-            $id_ulasan = (int)$_POST['id_ulasan'];
-            $nama = mysqli_real_escape_string($conn, $_POST['nama']);
-            $rating = (int)$_POST['rating'];
-            $komentar = mysqli_real_escape_string($conn, $_POST['komentar']);
-
-            $query = "UPDATE ulasan SET 
-                      nama_user = '$nama',
-                      komentar_ulasan = '$komentar',
-                      rating = $rating
-                      WHERE id_ulasan = $id_ulasan";
-            mysqli_query($conn, $query);
-
-        } elseif ($action === 'hapus') {
-            $id_ulasan = (int)$_POST['id_ulasan'];
-            $query = "DELETE FROM ulasan WHERE id_ulasan = $id_ulasan";
-            mysqli_query($conn, $query);
-        }
-
-        header("Location: detail.php?id=$id&success=tambah");
-
-        exit();
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -67,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     h2, h3, p {
-        color:rgb(255, 255, 255);
+        color: rgb(255, 255, 255);
     }
     
     .container {
@@ -100,8 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         border: 2px solid #b2dfdb;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         margin-bottom: 30px;
-
-        /* Ini bagian penting agar form sejajar dengan gambar */
         margin-top: 100px;
     }
 
@@ -120,6 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         border-radius: 6px;
         background-color: #f0fdfa;
         font-size: 14px;
+        box-sizing: border-box; /* Agar padding tidak merusak lebar */
     }
 
     button[type="submit"] {
@@ -137,19 +107,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         background-color: #80cbc4;
     }
 
-    .form-container a {
-        color: #666;
-        font-size: 14px;
-        margin-left: 50px;
-        text-decoration: none;
-    }
-
-    .form-container a:hover {
-        text-decoration: underline;
-    }
-
     .star-rating {
         font-size: 24px;
+        margin-bottom: 10px;
     }
 
     .star-rating span {
@@ -168,11 +128,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     .ulasan-card p {
         color: black;
+        margin: 5px 0;
     }
 
     .ulasan-card strong {
         color: black;
     }
+    
     .rating {
         color: #ffb300;
         font-weight: bold;
@@ -182,7 +144,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body>
-    
 
 <div class="container">
     <div class="left-column">
@@ -200,50 +161,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="right-column">
         <div class="form-container">
-            <h3><?= isset($_GET['edit']) ? 'Edit Ulasan' : 'Tambah Ulasan' ?></h3>
-            <form method="POST">
-                <input type="hidden" name="action" value="<?= isset($_GET['edit']) ? 'edit' : 'tambah' ?>">
-
-                <?php if (isset($_GET['edit'])): ?>
-                    <?php 
-                        $edit_id = (int)$_GET['edit'];
-                        $queryEdit = "SELECT * FROM ulasan WHERE id_ulasan = $edit_id";
-                        $resultEdit = mysqli_query($conn, $queryEdit);
-                        $editData = mysqli_fetch_assoc($resultEdit);
-                    ?>
-                    <input type="hidden" name="id_ulasan" value="<?= $edit_id ?>">
-                <?php endif; ?>
-
+            <h3>Tambah Ulasan</h3>
+            <form method="POST" action="submit_review.php?id=<?= $id ?>">
                 <div>
-                    <label for="nama">Nama:</label><br>
-                    <input type="text" id="nama" name="nama" required 
-                           value="<?= isset($editData) ? htmlspecialchars($editData['nama_user']) : '' ?>">
+                    <label for="nama" style="color: #004d40; font-weight: bold;">Nama:</label><br>
+                    <input type="text" id="nama" name="nama" required>
                 </div>
 
                 <div style="margin: 10px 0;">
-                    <label>Rating:</label><br>
+                    <label style="color: #004d40; font-weight: bold;">Rating:</label><br>
                     <div class="star-rating">
                         <?php for ($i = 1; $i <= 5; $i++): ?>
-                            <span onclick="setRating(<?= $i ?>)" 
-                                  style="<?= (isset($editData) && $editData['rating'] >= $i) || (!isset($editData) && $i == 5) ? 'color: #ffc107;' : 'color: #ccc;' ?>">
-                                ★
-                            </span>
+                            <span onclick="setRating(<?= $i ?>)" style="color: #ffc107;">★</span>
                         <?php endfor; ?>
-                        <input type="hidden" id="rating" name="rating" 
-                               value="<?= isset($editData) ? $editData['rating'] : 5 ?>">
+                        <input type="hidden" id="rating" name="rating" value="5">
                     </div>
                 </div>
 
                 <div>
-                    <label for="komentar">Komentar:</label><br>
-                    <textarea id="komentar" name="komentar" rows="4" required><?= isset($editData) ? htmlspecialchars($editData['komentar_ulasan']) : '' ?></textarea>
+                    <label for="komentar" style="color: #004d40; font-weight: bold;">Komentar:</label><br>
+                    <textarea id="komentar" name="komentar" rows="4" required></textarea>
                 </div>
 
-                <button type="submit"><?= isset($_GET['edit']) ? 'Update Ulasan' : 'Kirim Ulasan' ?></button>
-
-                <?php if (isset($_GET['edit'])): ?>
-                    <a href="detail.php?id=<?= $id ?>">Batal</a>
-                <?php endif; ?>
+                <button type="submit">Kirim Ulasan</button>
             </form>
         </div>
     </div>
@@ -254,11 +194,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php if (mysqli_num_rows($resultUlasan) > 0): ?>
     <?php while($ulasan = mysqli_fetch_assoc($resultUlasan)): ?>
         <div class="ulasan-card">
-            <p><strong><?= htmlspecialchars($ulasan['nama_user']) ?></strong> 
-               - <span class="rating"><?= str_repeat('★', $ulasan['rating']) . str_repeat('☆', 5 - $ulasan['rating']) ?></span>
-               (<?= $ulasan['rating'] ?>/5)</p>
+            <p>
+                <strong><?= htmlspecialchars($ulasan['nama_user']) ?></strong> 
+                - <span class="rating"><?= str_repeat('★', $ulasan['rating']) . str_repeat('☆', 5 - $ulasan['rating']) ?></span>
+                (<?= $ulasan['rating'] ?>/5)
+            </p>
             <p><?= nl2br(htmlspecialchars($ulasan['komentar_ulasan'])) ?></p>
-            <small><?= date('d M Y, H:i', strtotime($ulasan['tanggal'])) ?></small>
+            <small style="color: #666;"><?= date('d M Y, H:i', strtotime($ulasan['tanggal'])) ?></small>
         </div>
     <?php endwhile; ?>
 <?php else: ?>
@@ -266,12 +208,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php endif; ?>
 
 <script>
+    // Fungsi JavaScript untuk memilih jumlah bintang rating
     function setRating(rating) {
         document.getElementById('rating').value = rating;
         const stars = document.querySelectorAll('.star-rating span');
         stars.forEach((star, index) => {
             star.style.color = index < rating ? '#ffc107' : '#ccc';
         });
+    }
+
+    // Fungsi Pop-up Notifikasi Sukses
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('success') === 'tambah') {
+            alert('Terima kasih! Ulasan berhasil ditambahkan.');
+            
+            // Bersihkan parameter 'success' dari URL agar pop-up tidak muncul lagi saat di-refresh
+            window.history.replaceState({}, document.title, "detail.php?id=" + urlParams.get('id'));
+        }
     }
 </script>
 
