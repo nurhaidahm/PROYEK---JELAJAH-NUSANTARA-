@@ -38,12 +38,27 @@ $resultUlasan = mysqli_query($conn, $queryUlasan);
 <head>
     <title><?= htmlspecialchars($wisata['nama_wisata'] ?? 'Wisata') ?> - Detail</title>
     <style>
-        body { font-family: sans-serif; background-color: rgb(13, 94, 90); padding: 20px; color: white; }
-        .container { display: flex; gap: 40px; margin-bottom: 50px; }
-        .gambar-wisata { max-width: 85%; border-radius: 12px; }
-        .form-container { background: #ffffff; padding: 25px; border-radius: 10px; color: black; }
-        .ulasan-card { border: 1px solid #b2dfdb; background-color: #ffffff; padding: 20px; margin-bottom: 20px; border-radius: 10px; color: black; }
-    </style>
+    body { font-family: sans-serif; background-color: rgb(13, 94, 90); padding: 20px; color: white; }
+    .container { 
+        display: flex; 
+        flex-wrap: wrap; /* Agar responsif jika layar sempit */
+        gap: 40px; 
+        max-width: 1200px; 
+        margin: 0 auto; 
+    }
+    .left-column { flex: 2; } /* Kolom kiri lebih lebar */
+    .right-column { flex: 1; min-width: 300px; } /* Kolom kanan untuk form */
+    .gambar-wisata { width: 100%; height: auto; border-radius: 12px; }
+    .form-container { 
+        background: #ffffff; 
+        padding: 25px; 
+        border-radius: 10px; 
+        color: black; 
+        margin-top: 50px; 
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .ulasan-card { border: 1px solid #b2dfdb; background-color: #ffffff; padding: 20px; margin-bottom: 20px; border-radius: 10px; color: black; }
+</style>
 </head>
 <body>
 
