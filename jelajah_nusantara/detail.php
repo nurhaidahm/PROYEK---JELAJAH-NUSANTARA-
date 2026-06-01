@@ -3,11 +3,12 @@ include 'db.php';
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
+// Ambil Data Wisata
 $queryWisata = "SELECT * FROM wisata WHERE id_wisata = $id";
 $resultWisata = mysqli_query($conn, $queryWisata);
 $wisata = mysqli_fetch_assoc($resultWisata);
 
-// Proses form dengan penanganan error sederhana
+// Proses Aksi (Tambah, Edit, Hapus)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $action = $_POST['action'];
     $nama = mysqli_real_escape_string($conn, $_POST['nama']);
@@ -15,7 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $komentar = mysqli_real_escape_string($conn, $_POST['komentar']);
 
     if ($action === 'tambah') {
-        // ID_ULASAN tidak perlu ditulis karena sudah Auto Increment di database
         $query = "INSERT INTO ulasan (id_wisata, nama_user, komentar_ulasan, rating, tanggal) 
                   VALUES ($id, '$nama', '$komentar', $rating, NOW())";
         mysqli_query($conn, $query);
@@ -29,10 +29,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $query = "DELETE FROM ulasan WHERE id_ulasan = $id_ulasan";
         mysqli_query($conn, $query);
     }
+    
+    // Redirect agar tidak double-submit
     header("Location: detail.php?id=$id");
     exit();
 }
 
+// Ambil Data Ulasan
 $queryUlasan = "SELECT * FROM ulasan WHERE id_wisata = $id ORDER BY tanggal DESC";
 $resultUlasan = mysqli_query($conn, $queryUlasan);
 ?>
@@ -40,9 +43,8 @@ $resultUlasan = mysqli_query($conn, $queryUlasan);
 <!DOCTYPE html>
 <html>
 <head>
-    <title><?= htmlspecialchars($wisata['nama_wisata'] ?? 'Detail Wisata') ?> - Detail Wisata</title>
+    <title><?= htmlspecialchars($wisata['nama_wisata'] ?? 'Detail Wisata') ?></title>
     <style>
-        /* CSS Kamu tetap sama agar tampilan tidak berubah */
         body { font-family: 'Segoe UI', sans-serif; background-color: rgb(13, 94, 90); padding: 20px; margin: 0; }
         h2, h3, p { color: white; }
         .container { display: flex; gap: 40px; align-items: flex-start; margin-bottom: 40px; }
@@ -77,7 +79,7 @@ $resultUlasan = mysqli_query($conn, $queryUlasan);
                 <label>Nama:</label><br>
                 <input type="text" name="nama" required>
                 <label>Rating:</label>
-                <div class="star-rating" id="stars">
+                <div class="star-rating">
                     <?php for($i=1; $i<=5; $i++): ?>
                         <span onclick="setRating(<?= $i ?>)" id="star-<?= $i ?>">★</span>
                     <?php endfor; ?>
@@ -92,15 +94,13 @@ $resultUlasan = mysqli_query($conn, $queryUlasan);
 </div>
 
 <h3>Ulasan Pengunjung</h3>
-<?php if ($resultUlasan && mysqli_num_rows($resultUlasan) > 0): ?>
-    <?php while($u = mysqli_fetch_assoc($resultUlasan)): ?>
-        <div class="ulasan-card">
-            <p><strong><?= htmlspecialchars($u['nama_user']) ?></strong> - 
-               <span class="rating"><?= str_repeat('★', $u['rating']) ?></span></p>
-            <p><?= htmlspecialchars($u['komentar_ulasan']) ?></p>
-        </div>
-    <?php endwhile; ?>
-<?php endif; ?>
+<?php while($u = mysqli_fetch_assoc($resultUlasan)): ?>
+    <div class="ulasan-card">
+        <p><strong><?= htmlspecialchars($u['nama_user']) ?></strong> - 
+           <span class="rating"><?= str_repeat('★', $u['rating']) ?></span></p>
+        <p><?= htmlspecialchars($u['komentar_ulasan']) ?></p>
+    </div>
+<?php endwhile; ?>
 
 <script>
     function setRating(r) {
